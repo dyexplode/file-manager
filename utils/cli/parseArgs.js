@@ -3,14 +3,12 @@ import process from 'process';
 export const parseArgs = () => {
     const arrAtr = process.argv;
     const getNext = arrAtr.shift.bind(arrAtr);
-    const result = [];
+    const result = {};
     let arg; 
     while(arg = getNext()) {
-        if (arg.match(/^--/)) {
-            result.push(`${arg.slice(2)} is ${getNext()}`);
+        if (arg.startsWith('--username=')) {
+            result[arg.split('=')[0].slice(2)] = arg.split('=')[1];
         }
     }
-    console.log(result.join(', '));
+    return result;
 };
-
-parseArgs();

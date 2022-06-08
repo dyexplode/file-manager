@@ -11,4 +11,11 @@ export const parseEnv = () => {
     console.log(arrProp.join('; '));
 };
 
-parseEnv();
+export const setEnv = (key, data) => {
+    process.env[key] = data;
+    // console.log('Add property:', key, "=", data);
+};
+
+export const getEnv = (key) => {
+    return process.env[key];
+};

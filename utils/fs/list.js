@@ -1,17 +1,17 @@
-import path from 'path';
 import { readdir } from 'fs/promises';
-import { fileURLToPath } from 'url';
 
-export const list = async () => {
-    const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'files');
+export default async function (dir) {
     try {
         const fileList = await readdir(dir, {withFileTypes: true});
+        console.log('ddd');
+        fileList.forEach((file) => {
+            if (file.isDirectory()) console.log('DIR -->', file.name);
+        });
+        
         fileList.forEach((file) => {
             if (file.isFile()) console.log(file.name);
         });
-    } catch {
-        throw new Error('FS operation failed');
+    } catch (err) {
+        console.log('Operation failed');
     }
 };
-
-list();

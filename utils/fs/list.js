@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 export default async function (dir) {
     try {
         const fileList = await readdir(dir, {withFileTypes: true});
-        console.log('ddd');
+        // console.log('ddd');
         fileList.forEach((file) => {
             if (file.isDirectory()) console.log('DIR -->', file.name);
         });

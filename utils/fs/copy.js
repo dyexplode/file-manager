@@ -1,40 +1,31 @@
-import { mkdir } from 'fs/promises';
 import { copyFile } from 'fs/promises';
 import { access } from 'fs/promises';
-import { readdir } from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-export const copy = async () => {
-    const currDir = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(currDir, 'files_copy');
-    const srcPath = path.join(currDir, 'files');
-    let isExistSrc;
-    let isExistDist;
+export default async function (pathFile, newDirectory) {
+    const newPathFile = path.join(newDirectory, path.basename(pathFile));
+    let isExistSource;
+    let isExistDestination;
 
     try {
-        isExistSrc = !await access(srcPath);
+        isExistSource = !await access(pathFile);
     } catch {
-        isExistSrc = false;
+        isExistSource = false;
     }
     try {
-        isExistDist = !await access(distPath);
+        isExistDestination = !await access(newPathFile);
     } catch {
-        isExistDist = false;
+        isExistDestination = false;
     }
 
-    if (!isExistSrc || isExistDist) {
-        throw new Error('FS operation failed');
+    if (!isExistSource || isExistDestination) {
+        console.log('Operation failed');
+        return;
+        //throw new Error('FS operation failed');
     }
 
-    await mkdir(distPath);
-    const fileList = await readdir(srcPath, { withFileTypes: true });
-    fileList.forEach((file) => {
-        if (file.isFile()) {
-            copyFile(path.join(srcPath, file.name), path.join(distPath, file.name));
-        }
-    })
-
+    return new Promise((resolve) => {
+        copyFile(pathFile, newPathFile)
+        .then(resolve);
+    });
 };
-
-copy();

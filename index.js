@@ -1,10 +1,19 @@
-import process, { stdin as input, stdout as output }from 'process';
+import { stdin as input, stdout as output }from 'process';
 import path from 'path';
 import { createInterface } from 'readline';
 import { parseArgs } from './utils/cli/parseArgs.js';
 import { getEnv, setEnv } from './utils/cli/env.js';
 import { homedir as getHomePath } from 'os';
 import getList from './utils/fs/list.js';
+import readFile from './utils/streams/read.js';
+import checkPath from './utils/path/checkPath.js';
+import createFile from './utils/streams/write.js';
+import renameFile from './utils/fs/rename.js';
+import copyFile from './utils/fs/copy.js';
+import removeFile from './utils/fs/delete.js';
+import calcHash from './utils/hash/calcHash.js';
+import { compress as compressFile, decompress as decompressFile } from './utils/zip.js';
+import getOs from './utils/os.js';
 
 // set default path
 let currentPath = getHomePath();
@@ -25,7 +34,7 @@ rl.write(`Welcome to the File Manager, ${ getEnv('RSS_FM_USERNAME')}!\n`);
 rl.write(`You are currently in ${currentPath}\n`);
 
 rl.on('close', () => {
-    console.log(`Thank you for using File Manager, ${ getEnv('RSS_FM_USERNAME') }!`);
+    console.log(`Thank you for using File Manager, ${ getEnv('RSS_FM_USERNAME') }!\n`);
 });
 
 rl.on('line', (line) => {
@@ -42,7 +51,7 @@ rl.on('line', (line) => {
         case 'up':
             try {
                 currentPath = path.join(currentPath, '..');
-                console.log(currentPath);
+                console.log('Current path:', currentPath);
             } catch (err) {
                 console.log('Operation failed');
             }
@@ -50,52 +59,111 @@ rl.on('line', (line) => {
 
         case 'cd':
             try {
-                if (!argums[0]) throw new Error('Path is free');
-                if (path.isAbsolute(argums[0])) {
-                    currentPath = argums[0];
-                    console.log(currentPath);
-                } else {
-                currentPath = path.join(currentPath, argums[0]);
-                console.log(currentPath);
-                }
+                if (!argums[0]) throw new Error('Path is empty');
+                currentPath = checkPath(argums[0], currentPath);
+                console.log('Current path:', currentPath);
             } catch (err) {
                 console.log('Operation failed');
             }
             break;
 
         case 'cat':
+            try {
+                if (!argums[0]) throw new Error('Path is empty');
+                readFile(checkPath(argums[0], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'add':
+            try {
+                if (!argums[0]) throw new Error('Path is empty');
+                createFile(checkPath(argums[0], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'rn':
+            try {
+                if (!argums[0] || !argums[1]) throw new Error('Path is empty');
+                renameFile(checkPath(argums[0], currentPath), checkPath(argums[1], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'cp':
+            try {
+                if (!argums[0] || !argums[1]) throw new Error('Path is empty');
+                copyFile(checkPath(argums[0], currentPath), checkPath(argums[1], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'mv':
+            try {
+                if (!argums[0] || !argums[1]) throw new Error('Path is empty');
+                copyFile(checkPath(argums[0], currentPath), checkPath(argums[1], currentPath))
+                .then(
+                    () => removeFile(checkPath(argums[0], currentPath))
+                );
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'rm':
+            try {
+                if (!argums[0]) throw new Error('Path is empty');
+                removeFile(checkPath(argums[0], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'os':
+            try {
+                if (!argums[0]) throw new Error('Path is empty');
+                getOs(argums[0]);
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'hash':
+            try {
+                if (!argums[0]) throw new Error('Path is empty');
+                calcHash(checkPath(argums[0], currentPath)).then((result => console.log(result)));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
         case 'compress':
+            try {
+                if (!argums[0] || !argums[1]) throw new Error('Path is empty');
+                compressFile(checkPath(argums[0], currentPath), checkPath(argums[1], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
         
         case 'decompress':
+            try {
+                if (!argums[0] || !argums[1]) throw new Error('Path is empty');
+                decompressFile(checkPath(argums[0], currentPath), checkPath(argums[1], currentPath));
+            } catch (err) {
+                console.log('Operation failed');
+            }
             break;
 
 
         default:
-            rl.write('Invalid input\n');
+            console.log('Invalid input\n');
+            break;
     }
     
     if (command === '.exit') {

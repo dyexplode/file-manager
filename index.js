@@ -1,19 +1,19 @@
 import { stdin as input, stdout as output }from 'process';
-import path from 'path';
 import { createInterface } from 'readline';
 import { parseArgs } from './utils/cli/parseArgs.js';
 import { getEnv, setEnv } from './utils/cli/env.js';
 import { homedir as getHomePath } from 'os';
+
 import getList from './utils/fs/list.js';
-import readFile from './utils/streams/read.js';
-import checkPath from './utils/path/checkPath.js';
-import createFile from './utils/streams/write.js';
 import renameFile from './utils/fs/rename.js';
 import copyFile from './utils/fs/copy.js';
 import removeFile from './utils/fs/delete.js';
-import calcHash from './utils/hash/calcHash.js';
-import { compress as compressFile, decompress as decompressFile } from './utils/zip.js';
+import readFile from './utils/streams/read.js';
+import createFile from './utils/streams/write.js';
+import checkPath from './utils/checkPath.js';
+import calcHash from './utils/calcHash.js';
 import getOs from './utils/os.js';
+import { compress as compressFile, decompress as decompressFile } from './utils/zip.js';
 
 // set default path
 let currentPath = getHomePath();
@@ -50,7 +50,7 @@ rl.on('line', (line) => {
 
         case 'up':
             try {
-                currentPath = path.join(currentPath, '..');
+                currentPath = checkPath('..', currentPath);
                 console.log('Current path:', currentPath);
             } catch (err) {
                 console.log('Operation failed');

@@ -21,7 +21,6 @@ export default async function (pathFile, newDirectory) {
     if (!isExistSource || isExistDestination) {
         console.log('Operation failed');
         return;
-        //throw new Error('FS operation failed');
     }
 
     return new Promise((resolve) => {

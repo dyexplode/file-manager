@@ -13,7 +13,6 @@ export default function (command) {
 
         case '--cpus':
             const info = os.cpus();
-            console.log(info);
             console.log(`Total cpus core count: ${info.length}.`);
             info.forEach((item, index) => {
                 console.log(`Type of CPU#${index} ${item.model}. Current speed: ${item.speed / 1000} GHz`);
